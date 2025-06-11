@@ -19,18 +19,23 @@
         height: 100vh;
         display: flex;
         flex-direction: column;
+        color: white;
+        overflow: hidden;
+      }
+
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
-        overflow: hidden;
-        color: white;
       }
 
       .robot-container {
-        position: relative;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 30px;
+        gap: 20px;
       }
 
       .mouth-container {
@@ -142,39 +147,46 @@
         }
       }
 
-      .status-panel {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 15px;
-        padding: 20px;
+      .status-text {
+        font-size: 16px;
+        font-weight: 500;
         text-align: center;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        min-width: 300px;
+        opacity: 0.9;
+        margin-top: 15px;
       }
 
-      .status-text {
-        font-size: 18px;
-        margin-bottom: 15px;
-        font-weight: 500;
+      /* Controles na base da página */
+      .bottom-controls {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(10px);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 15px 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
       }
 
       .connection-status {
-        display: inline-flex;
+        display: flex;
         align-items: center;
         gap: 8px;
         padding: 8px 16px;
         border-radius: 20px;
-        font-size: 14px;
+        font-size: 12px;
         font-weight: 600;
-        margin-bottom: 20px;
         background: rgba(231, 76, 60, 0.2);
         color: #e74c3c;
         border: 1px solid rgba(231, 76, 60, 0.3);
       }
 
       .indicator {
-        width: 8px;
-        height: 8px;
+        width: 6px;
+        height: 6px;
         border-radius: 50%;
         background: currentColor;
         animation: pulse 2s infinite;
@@ -194,10 +206,10 @@
         background: linear-gradient(145deg, #3498db, #2980b9);
         color: white;
         border: none;
-        padding: 15px 30px;
+        padding: 12px 24px;
         border-radius: 25px;
         cursor: pointer;
-        font-size: 16px;
+        font-size: 14px;
         font-weight: 500;
         transition: all 0.3s ease;
         box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
@@ -211,29 +223,55 @@
       .test-btn:active {
         transform: translateY(0);
       }
+
+      /* Responsivo */
+      @media (max-width: 768px) {
+        .mouth-container {
+          width: 200px;
+          height: 40px;
+        }
+
+        .bottom-controls {
+          flex-direction: column;
+          gap: 10px;
+          padding: 12px 15px;
+        }
+
+        .test-btn {
+          font-size: 12px;
+          padding: 10px 20px;
+        }
+
+        .connection-status {
+          font-size: 11px;
+        }
+      }
     </style>
   </head>
   <body>
-    <div class="robot-container">
-      <div class="mouth-container">
-        <div class="mouth" id="mouth"></div>
-        <div class="sound-waves" id="soundWaves">
-          <div class="wave"></div>
-          <div class="wave"></div>
-          <div class="wave"></div>
+    <div class="main-content">
+      <div class="robot-container">
+        <div class="mouth-container">
+          <div class="mouth" id="mouth"></div>
+          <div class="sound-waves" id="soundWaves">
+            <div class="wave"></div>
+            <div class="wave"></div>
+            <div class="wave"></div>
+          </div>
         </div>
-      </div>
 
-      <div class="status-panel">
         <div class="status-text" id="statusText">Robô pronto para falar 😊</div>
-
-        <div class="connection-status">
-          <div class="indicator"></div>
-          <span>Aguardando conexão</span>
-        </div>
-
-        <button class="test-btn" onclick="testSpeech()">🎤 Teste de Voz</button>
       </div>
+    </div>
+
+    <!-- Controles na base da página -->
+    <div class="bottom-controls">
+      <div class="connection-status" id="connectionStatus">
+        <div class="indicator"></div>
+        <span>Aguardando conexão</span>
+      </div>
+
+      <button class="test-btn" onclick="testSpeech()">🎤 Teste de Voz</button>
     </div>
 
     <script>
@@ -241,13 +279,55 @@
       const mouth = document.getElementById('mouth');
       const soundWaves = document.getElementById('soundWaves');
       const statusText = document.getElementById('statusText');
+      let selectedVoice = null;
+
+      // Função para escolher a melhor voz
+      function selectBestVoice() {
+        const voices = speechSynthesis.getVoices();
+        console.log(
+          'Vozes disponíveis:',
+          voices.map(v => `${v.name} (${v.lang})`)
+        );
+
+        // Prioridades de seleção de voz
+        const priorities = [
+          // Tentar vozes masculinas em português
+          voice => voice.lang.includes('pt') && voice.name.toLowerCase().includes('masculin'),
+          voice => voice.lang.includes('pt') && voice.name.toLowerCase().includes('male'),
+          voice => voice.lang.includes('pt') && voice.name.toLowerCase().includes('homem'),
+
+          // Tentar vozes neutras em português
+          voice => voice.lang.includes('pt-BR'),
+          voice => voice.lang.includes('pt'),
+
+          // Fallback para qualquer voz em português
+          voice => voice.lang.startsWith('pt'),
+
+          // Última opção: primeira voz disponível
+          voice => true
+        ];
+
+        for (const priority of priorities) {
+          const foundVoice = voices.find(priority);
+          if (foundVoice) {
+            selectedVoice = foundVoice;
+            console.log('✅ Voz selecionada:', foundVoice.name, foundVoice.lang);
+            statusText.textContent = `Voz: ${foundVoice.name} 🎤`;
+            break;
+          }
+        }
+      }
 
       function speak(text) {
         if (isSpeaking) return;
 
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.9;
-        utterance.pitch = 1;
+
+        // Configurações de voz
+        utterance.voice = selectedVoice;
+        utterance.rate = 0.85; // Um pouco mais devagar
+        utterance.pitch = 0.8; // Tom mais grave (masculino)
+        utterance.volume = 1;
 
         utterance.onstart = () => {
           isSpeaking = true;
@@ -260,14 +340,29 @@
           isSpeaking = false;
           mouth.classList.remove('speaking');
           soundWaves.classList.remove('active');
-          statusText.textContent = 'Pronto para falar novamente 😊';
+          statusText.textContent = `Voz: ${selectedVoice?.name || 'Padrão'} 🎤`;
         };
 
         speechSynthesis.speak(utterance);
       }
 
       function testSpeech() {
-        speak('Olá! Eu sou o Eduardu o robô educacional feito de Arduíno!');
+        speak('Olá! Eu sou o robô educacional. Como posso ajudar você hoje?');
+      }
+
+      // Inicializar quando as vozes estiverem carregadas
+      function initVoices() {
+        selectBestVoice();
+        if (!selectedVoice) {
+          setTimeout(initVoices, 100); // Tentar novamente
+        }
+      }
+
+      // Aguardar vozes carregarem
+      if (speechSynthesis.getVoices().length === 0) {
+        speechSynthesis.addEventListener('voiceschanged', initVoices);
+      } else {
+        initVoices();
       }
     </script>
   </body>
