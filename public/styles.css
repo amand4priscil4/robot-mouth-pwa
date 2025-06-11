@@ -1,0 +1,258 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  color: white;
+}
+
+.robot-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
+
+/* Container da Boca */
+.mouth-container {
+  position: relative;
+  width: 250px;
+  height: 50px;
+}
+
+.mouth {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(145deg, #1a1a1a, #2c2c2c);
+  border-radius: 25px 25px 50px 50px;
+  border: 4px solid #27ae60;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(39, 174, 96, 0.6), inset 0 3px 12px rgba(0, 0, 0, 0.7);
+  transition: all 0.3s ease;
+}
+
+/* Estados da Boca */
+.mouth.speaking {
+  animation: talking 0.4s infinite alternate ease-in-out;
+  border-color: #e67e22;
+  box-shadow: 0 0 20px rgba(230, 126, 34, 0.6), inset 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.mouth.normal {
+  border-radius: 25px;
+  border-color: #e74c3c;
+  box-shadow: 0 0 25px rgba(231, 76, 60, 0.5), inset 0 3px 12px rgba(0, 0, 0, 0.7);
+}
+
+.mouth.happy {
+  border-radius: 25px 25px 50px 50px;
+  border-color: #27ae60;
+  box-shadow: 0 0 20px rgba(39, 174, 96, 0.6), inset 0 3px 12px rgba(0, 0, 0, 0.7);
+}
+
+.mouth.surprised {
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  border-color: #f39c12;
+  box-shadow: 0 0 25px rgba(243, 156, 18, 0.7), inset 0 3px 12px rgba(0, 0, 0, 0.7);
+}
+
+@keyframes talking {
+  0% {
+    height: 50px;
+    border-radius: 25px;
+    transform: scaleX(1);
+  }
+  25% {
+    height: 35px;
+    border-radius: 18px;
+    transform: scaleX(1.1);
+  }
+  50% {
+    height: 25px;
+    border-radius: 12px;
+    transform: scaleX(0.9);
+  }
+  75% {
+    height: 40px;
+    border-radius: 20px;
+    transform: scaleX(1.05);
+  }
+  100% {
+    height: 55px;
+    border-radius: 28px;
+    transform: scaleX(0.95);
+  }
+}
+
+/* Ondas Sonoras */
+.sound-waves {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sound-waves.active {
+  opacity: 1;
+}
+
+.wave {
+  position: absolute;
+  border: 2px solid #3498db;
+  border-radius: 50%;
+  animation: ripple 1.5s infinite;
+}
+
+.wave:nth-child(1) {
+  width: 60px;
+  height: 60px;
+  top: 70px;
+  left: 70px;
+  animation-delay: 0s;
+}
+
+.wave:nth-child(2) {
+  width: 100px;
+  height: 100px;
+  top: 50px;
+  left: 50px;
+  animation-delay: 0.3s;
+}
+
+.wave:nth-child(3) {
+  width: 140px;
+  height: 140px;
+  top: 30px;
+  left: 30px;
+  animation-delay: 0.6s;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* Status e Controles */
+.status-panel {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  min-width: 300px;
+}
+
+.status-text {
+  font-size: 18px;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.connection-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.connection-status.connected {
+  background: rgba(39, 174, 96, 0.2);
+  color: #27ae60;
+  border: 1px solid rgba(39, 174, 96, 0.3);
+}
+
+.connection-status.disconnected {
+  background: rgba(231, 76, 60, 0.2);
+  color: #e74c3c;
+  border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+.indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Controles de Teste */
+.test-controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.test-btn {
+  background: linear-gradient(145deg, #3498db, #2980b9);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.test-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+
+.test-btn:active {
+  transform: translateY(0);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .mouth-container {
+    width: 200px;
+    height: 40px;
+  }
+
+  .status-panel {
+    min-width: 250px;
+    padding: 15px;
+  }
+}

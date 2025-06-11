@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1a1a2e" />
+    <title>Boca do Robô</title>
+    <link rel="manifest" href="manifest.json" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        color: white;
+      }
+
+      .robot-container {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+      }
+
+      .mouth-container {
+        position: relative;
+        width: 250px;
+        height: 50px;
+      }
+
+      .mouth {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(145deg, #1a1a1a, #2c2c2c);
+        border-radius: 25px 25px 50px 50px;
+        border: 4px solid #27ae60;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 0 20px rgba(39, 174, 96, 0.6), inset 0 3px 12px rgba(0, 0, 0, 0.7);
+        transition: all 0.3s ease;
+      }
+
+      .mouth.speaking {
+        animation: talking 0.4s infinite alternate ease-in-out;
+        border-color: #e67e22;
+        box-shadow: 0 0 20px rgba(230, 126, 34, 0.6), inset 0 2px 8px rgba(0, 0, 0, 0.6);
+      }
+
+      @keyframes talking {
+        0% {
+          height: 50px;
+          border-radius: 25px;
+          transform: scaleX(1);
+        }
+        25% {
+          height: 35px;
+          border-radius: 18px;
+          transform: scaleX(1.1);
+        }
+        50% {
+          height: 25px;
+          border-radius: 12px;
+          transform: scaleX(0.9);
+        }
+        75% {
+          height: 40px;
+          border-radius: 20px;
+          transform: scaleX(1.05);
+        }
+        100% {
+          height: 55px;
+          border-radius: 28px;
+          transform: scaleX(0.95);
+        }
+      }
+
+      .sound-waves {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 200px;
+        height: 200px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .sound-waves.active {
+        opacity: 1;
+      }
+
+      .wave {
+        position: absolute;
+        border: 2px solid #3498db;
+        border-radius: 50%;
+        animation: ripple 1.5s infinite;
+      }
+
+      .wave:nth-child(1) {
+        width: 60px;
+        height: 60px;
+        top: 70px;
+        left: 70px;
+        animation-delay: 0s;
+      }
+
+      .wave:nth-child(2) {
+        width: 100px;
+        height: 100px;
+        top: 50px;
+        left: 50px;
+        animation-delay: 0.3s;
+      }
+
+      .wave:nth-child(3) {
+        width: 140px;
+        height: 140px;
+        top: 30px;
+        left: 30px;
+        animation-delay: 0.6s;
+      }
+
+      @keyframes ripple {
+        0% {
+          transform: scale(0.5);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(1.2);
+          opacity: 0;
+        }
+      }
+
+      .status-panel {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        min-width: 300px;
+      }
+
+      .status-text {
+        font-size: 18px;
+        margin-bottom: 15px;
+        font-weight: 500;
+      }
+
+      .connection-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        background: rgba(231, 76, 60, 0.2);
+        color: #e74c3c;
+        border: 1px solid rgba(231, 76, 60, 0.3);
+      }
+
+      .indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: currentColor;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      .test-btn {
+        background: linear-gradient(145deg, #3498db, #2980b9);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+      }
+
+      .test-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+      }
+
+      .test-btn:active {
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="robot-container">
+      <div class="mouth-container">
+        <div class="mouth" id="mouth"></div>
+        <div class="sound-waves" id="soundWaves">
+          <div class="wave"></div>
+          <div class="wave"></div>
+          <div class="wave"></div>
+        </div>
+      </div>
+
+      <div class="status-panel">
+        <div class="status-text" id="statusText">Robô pronto para falar 😊</div>
+
+        <div class="connection-status">
+          <div class="indicator"></div>
+          <span>Aguardando conexão</span>
+        </div>
+
+        <button class="test-btn" onclick="testSpeech()">🎤 Teste de Voz</button>
+      </div>
+    </div>
+
+    <script>
+      let isSpeaking = false;
+      const mouth = document.getElementById('mouth');
+      const soundWaves = document.getElementById('soundWaves');
+      const statusText = document.getElementById('statusText');
+
+      function speak(text) {
+        if (isSpeaking) return;
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
+
+        utterance.onstart = () => {
+          isSpeaking = true;
+          mouth.classList.add('speaking');
+          soundWaves.classList.add('active');
+          statusText.textContent = 'Falando...';
+        };
+
+        utterance.onend = () => {
+          isSpeaking = false;
+          mouth.classList.remove('speaking');
+          soundWaves.classList.remove('active');
+          statusText.textContent = 'Pronto para falar novamente 😊';
+        };
+
+        speechSynthesis.speak(utterance);
+      }
+
+      function testSpeech() {
+        speak('Olá! Eu sou o Eduardu o robô educacional feito de Arduíno!');
+      }
+    </script>
+  </body>
+</html>
